@@ -1,0 +1,12 @@
+
+*.pbxproj
+
+*.xcworkspacedata
+
+knight_chess.xcodeproj/project.xcworkspace/xcshareddata/
+
+knight_chess.xcodeproj/xcshareddata/xcschemes/
+
+knight_chess.xcodeproj/xcuserdata/matiasbarrientos.xcuserdatad/xcdebugger/
+
+knight_chess.xcodeproj/xcuserdata/matiasbarrientos.xcuserdatad/xcschemes/
