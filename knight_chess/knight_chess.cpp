@@ -127,12 +127,7 @@ bool State::valid_action(long i, long j) const {
         }
     }
 
-    if (me > enemy) {
-        return true;
-    }
-
-
-    return me >= enemy;
+    return me - enemy >= 1;
 }
 
 const std::vector<Action> State::get_actions() const {
@@ -184,12 +179,8 @@ bool State::make_random_action(std::mt19937_64 &random_engine) {
     if (actions.empty())
         return false;
 
-
     long idx = std::uniform_int_distribution<long>(0, actions.size() - 1)(random_engine);
-
-    //std::cout << *this;
     transition(actions[idx]);
-    //std::cout << *this;
 
     return true;
 }
@@ -294,9 +285,13 @@ const std::list<Node *> &Node::get_children() const {
 }
 
 Node *Node::best_child() {
-    for (Node *n: children) {
-        double uct = (n->get_wins() / n->get_visits()) + std::sqrt(2) * std::sqrt(2 * std::log(visits) / n->get_visits());
-        n->set_uct(uct);
+    for (Node *child: children) {
+
+        if (child->get_visits() == 0.0)
+            continue;
+
+        double uct = (child->get_wins() / child->get_visits()) + 1.6 * std::sqrt(std::log(visits) / child->get_visits());
+        child->set_uct(uct);
     }
 
     return *std::max_element(children.begin(), children.end(), [](Node *a, Node *b) {

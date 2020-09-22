@@ -12,7 +12,7 @@
 #include <list>
 #include <vector>
 #include <set>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 #include <iostream>
 #include <chrono>
 #include <random>
