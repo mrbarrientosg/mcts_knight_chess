@@ -79,7 +79,6 @@ class Node {
     std::list<Node *> children;
     std::vector<Action> actions;
     Action move;
-    double uct;
 public:
     Node(State &state);
     Node(State &state, Action move);
@@ -88,7 +87,6 @@ public:
     bool empty_children() const;
     void update(double player_n);
 
-    void set_uct(double uct);
     double get_uct() const;
     Node *best_child();
     long get_visits() const;

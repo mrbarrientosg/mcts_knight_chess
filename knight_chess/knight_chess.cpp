@@ -70,9 +70,6 @@ bool State::is_end_game() const {
     if (me == 0 || enemy == 0) {
         return true;
     }
-//    else if (me - enemy == 0 && me < 2 && enemy < 2) {
-//        return true;
-//    }
 
     return false;
 }
@@ -90,21 +87,21 @@ double State::get_reward(int player) const {
         }
     }
 
-//    if (player1 == player2)
-//        return 0.5;
+    if (player1 == player2)
+        return 0.5;
 
     int winner_player = 0;
 
     if (player1 > player2) {
-        winner_player = player;
+        winner_player = 1;
     } else {
-        winner_player = 3 - player;
+        winner_player = 2;
     }
 
     if (winner_player == player) {
-        return 1.0;
+        return 0.0;
     } else {
-        return -1.0;
+        return abs(player1 - player2);
     }
 
     return 0.0;
@@ -205,9 +202,8 @@ Node::Node(State &state) {
     this->parent = nullptr;
     this->actions = state.get_actions();
     this->visits = 0;
-    this->wins = 0;
+    this->wins = 0.0;
     this->player = state.get_player();
-    this->uct = std::numeric_limits<double>::min();
 }
 
 Node::Node(State &state, Action move) {
@@ -215,9 +211,8 @@ Node::Node(State &state, Action move) {
     this->actions = state.get_actions();
     this->move = move;
     this->visits = 0;
-    this->wins = 0;
+    this->wins = 0.0;
     this->player = state.get_player();
-    this->uct = std::numeric_limits<double>::min();
 }
 
 void Node::set_parent(Node *parent) {
@@ -247,12 +242,11 @@ std::ostream &operator<<(std::ostream &os, const State &s) {
     return os;
 }
 
-void Node::set_uct(double uct) {
-    this->uct = uct;
-}
-
 double Node::get_uct() const {
-    return this->uct;
+    if (visits == 0)
+        return 0.0;
+
+    return wins / visits + 1.45 * std::sqrt(2 * std::log(parent->visits) / visits);
 }
 
 long Node::get_visits() const {
@@ -285,18 +279,14 @@ const std::list<Node *> &Node::get_children() const {
 }
 
 Node *Node::best_child() {
-    for (Node *child: children) {
-
-        if (child->get_visits() == 0.0)
-            continue;
-
-        double uct = (child->get_wins() / child->get_visits()) + 1.6 * std::sqrt(std::log(visits) / child->get_visits());
-        child->set_uct(uct);
-    }
-
-    return *std::max_element(children.begin(), children.end(), [](Node *a, Node *b) {
-         return a->get_uct() < b->get_uct();
-    });
+    if (player == 1)
+        return *std::max_element(children.begin(), children.end(), [](Node *a, Node *b) {
+             return a->get_uct() < b->get_uct();
+        });
+    else
+        return *std::min_element(children.begin(), children.end(), [](Node *a, Node *b) {
+             return a->get_uct() > b->get_uct();
+        });
 }
 
 MCTS::MCTS(std::mt19937_64::result_type initial_seed) {
@@ -333,9 +323,8 @@ Node *MCTS::search(State root_state) {
     Node *root = new Node(root_state);
     Node *current = nullptr;
     State state = root_state;
-    long i = 0;
 
-    do {
+    for (long i = 0; i < 10000; i++) {
         state = root_state;
         current = tree_policy(root, state);
 
@@ -343,16 +332,11 @@ Node *MCTS::search(State root_state) {
             state.make_random_action(random_engine);
         }
 
-        double reward = state.get_reward(root->get_player());
-
         while (current != nullptr) {
-            current->update(reward);
+            current->update(state.get_reward(current->get_player()));
             current = current->get_parent();
         }
-
-        i++;
-    } while (i < 10000);
-
+    }
 
     return root;
 }
