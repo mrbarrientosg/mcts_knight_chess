@@ -67,8 +67,6 @@ public:
     bool make_random_action(std::mt19937_64 &random_engine);
     int get_player() const;
     void change_player();
-    bool valid_action(long i, long j) const;
-    unsigned long hash() const;
 };
 
 class Node {

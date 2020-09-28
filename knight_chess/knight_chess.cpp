@@ -42,17 +42,6 @@ long State::get_knight(long i, long j) const {
     return this->table[i][j];
 }
 
-unsigned long State::hash() const {
-    unsigned long value = 0;
-    for (long i = 0; i < 8; i++) {
-        for (long j = 0; j < 8; j++) {
-            value = 65537 * value + table[i][j];
-        }
-    }
-
-    return value;
-}
-
 bool State::is_end_game() const {
     long me = 0;
     long enemy = 0;
@@ -87,9 +76,6 @@ double State::get_reward(int player) const {
         }
     }
 
-    if (player1 == player2)
-        return 0.5;
-
     int winner_player = 0;
 
     if (player1 > player2) {
@@ -105,26 +91,6 @@ double State::get_reward(int player) const {
     }
 
     return 0.0;
-}
-
-bool State::valid_action(long i, long j) const {
-    int enemy_player = 3 - this->player;
-    int enemy = 0;
-    int me = 0;
-
-    for (const auto &a: posible_actions) {
-        long i_pos = i + a.first.first;
-        long j_pos = j + a.first.second;
-        if (i_pos >= 8 || i_pos < 0) continue;
-        if (j_pos >= 8 || j_pos < 0) continue;
-        if (this->table[i_pos][j_pos] == enemy_player) {
-            enemy++;
-        } else if (this->table[i_pos][j_pos] == player) {
-            me++;
-        }
-    }
-
-    return me - enemy >= 1;
 }
 
 const std::vector<Action> State::get_actions() const {
@@ -243,10 +209,14 @@ std::ostream &operator<<(std::ostream &os, const State &s) {
 }
 
 double Node::get_uct() const {
-    if (visits == 0)
-        return 0.0;
+    if (visits == 0) {
+        std::random_device rd;
+        std::default_random_engine gen(rd());
+        // Se le da oportunidad random al hijo en vez de retornar +INF.
+        return 10000000.0 + std::uniform_real_distribution<double>(1, 1000.0)(gen);
+    }
 
-    return wins / visits + 1.45 * std::sqrt(2 * std::log(parent->visits) / visits);
+    return (wins / visits) + (1.45 * std::sqrt(2 * std::log(parent->visits) / visits));
 }
 
 long Node::get_visits() const {
