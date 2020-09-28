@@ -66,10 +66,10 @@ int main(int argc, const char * argv[]) {
         double w = wins[move];
 
         
-        double expected_success_rate = w / v;
-        if (expected_success_rate > best_score) {
+        double rate = w / v;
+        if (rate > best_score) {
             best_move = move;
-            best_score = expected_success_rate;
+            best_score = rate;
         }
     }
 

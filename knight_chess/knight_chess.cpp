@@ -209,14 +209,7 @@ std::ostream &operator<<(std::ostream &os, const State &s) {
 }
 
 double Node::get_uct() const {
-    if (visits == 0) {
-        std::random_device rd;
-        std::default_random_engine gen(rd());
-        // Se le da oportunidad random al hijo en vez de retornar +INF.
-        return 10000000.0 + std::uniform_real_distribution<double>(1, 1000.0)(gen);
-    }
-
-    return (wins / visits) + (1.45 * std::sqrt(2 * std::log(parent->visits) / visits));
+    return (wins / visits) + (std::sqrt(2) * std::sqrt(2 * std::log(parent->visits) / visits));
 }
 
 long Node::get_visits() const {
@@ -249,14 +242,9 @@ const std::list<Node *> &Node::get_children() const {
 }
 
 Node *Node::best_child() {
-    if (player == 1)
-        return *std::max_element(children.begin(), children.end(), [](Node *a, Node *b) {
-             return a->get_uct() < b->get_uct();
-        });
-    else
-        return *std::min_element(children.begin(), children.end(), [](Node *a, Node *b) {
-             return a->get_uct() > b->get_uct();
-        });
+    return *std::max_element(children.begin(), children.end(), [](Node *a, Node *b) {
+         return a->get_uct() < b->get_uct();
+    });
 }
 
 MCTS::MCTS(std::mt19937_64::result_type initial_seed) {
