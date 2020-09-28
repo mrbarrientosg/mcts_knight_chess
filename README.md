@@ -12,7 +12,7 @@ $ cd knight_chess
 $ g++ -O3 *.cpp -o lucy_controller --std=c++11 -lpthread
 ```
 
-El video explicativo se puede ver en este [link](https://www.google.cl)
+El video explicativo se puede ver en este [link](https://drive.google.com/file/d/1lDSMDAbuG7eXynWXwN_4Cmh0jTMn5n9C/view?usp=sharing)
 
 La coevaluacion [aqui](COEVALUACION.md)
 
