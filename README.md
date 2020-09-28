@@ -2,6 +2,8 @@
 
 Controlador basado en el metodo de monte carlo tree search.
 
+El controlador tiene una variante de paralelización en el nodo raiz. 
+
 ## Compilación y ejecución
 
 Para compilar el codigo debe ejecutar el siguiente comando de linea:
